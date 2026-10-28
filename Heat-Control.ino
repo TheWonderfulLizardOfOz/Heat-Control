@@ -34,8 +34,10 @@ class Button {
 
 Button downButton = Button(8, 0);
 Button upButton = Button(13, 0);
-long lastRead = 0;
+unsigned long lastRead = 0;
+unsigned long lastOnPress = 0;
 float curTemp = 22;
+float targetTemp = 23;
 
 void setup() {
   Serial.begin(9600);
@@ -64,6 +66,15 @@ void loop() {
     curTemp = newTemp;
     lastRead = millis();
   }
+
+  // One hour plus 10 seconds in case boiler timer is off
+  if (targetTemp < curTemp && (millis() - lastOnPress > 3610000 || lastOnPress == 0)) {
+    pushPhysicalButton();
+    lastOnPress = millis();
+  } // turn off if already on 
+  else if (targetTemp > curTemp + 0.5 && millis() - lastOnPress < 3590000 && lastOnPress != 0) {
+    pushPhysicalButton();
+  }
   
   draw(curTemp);
 
@@ -77,5 +88,9 @@ void draw(float temp) {
     u8g2.print(temp, 1);
     u8g2.print(" \xB0""C");
   } while (u8g2.nextPage());
+}
+
+void pushPhysicalButton() {
+
 }
 
