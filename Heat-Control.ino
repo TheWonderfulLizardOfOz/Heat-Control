@@ -38,6 +38,7 @@ unsigned long lastRead = 0;
 unsigned long lastOnPress = 0;
 float curTemp = 22;
 float targetTemp = 23;
+const float hysteresis = 0.5;
 
 void setup() {
   Serial.begin(9600);
@@ -68,11 +69,11 @@ void loop() {
   }
 
   // One hour plus 10 seconds in case boiler timer is off
-  if (targetTemp < curTemp && (millis() - lastOnPress > 3610000 || lastOnPress == 0)) {
+  if (targetTemp < curTemp - hysteresis && (millis() - lastOnPress > 3610000 || lastOnPress == 0)) {
     pushPhysicalButton();
     lastOnPress = millis();
   } // turn off if already on 
-  else if (targetTemp > curTemp + 0.5 && millis() - lastOnPress < 3590000 && lastOnPress != 0) {
+  else if (targetTemp > curTemp + hysteresis && millis() - lastOnPress < 3590000 && lastOnPress != 0) {
     pushPhysicalButton();
   }
   
@@ -91,6 +92,6 @@ void draw(float temp) {
 }
 
 void pushPhysicalButton() {
-
+  // Need a transistor
 }
 
